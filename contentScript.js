@@ -1,5 +1,3 @@
-let isEnabled = false;
-
 function collectNonEmptyTextNodes(element) {
   let textElements = [];
 
@@ -28,45 +26,39 @@ function collectNonEmptyTextNodes(element) {
   return textElements;
 }
 
-function boldEveryXWord(textNode, wordPercentage, boldXWords) {
+function boldEveryXWord(textNode, wordPercentage, boldXWords, boldWeight) {
   const fullText = textNode.textContent;
   const words = fullText.split(/\s+/);
-  let updatedText = '';
-  let actualWordCount = 0; // Counter for words excluding spaces
+  let updatedParts = [];
+  let actualWordCount = 0;
 
   words.forEach((word, index) => {
-      // Check if the current word should be partially bold
-      if ((actualWordCount + 1) % boldXWords === 0) {
-          const boldLength = Math.ceil(word.length * (wordPercentage / 100));
-          const boldPart = word.substring(0, boldLength);
-          const restPart = word.substring(boldLength);
-          // Include a unique class name for the bionic-enhanced part
-          updatedText += `<strong class="bionic-enhanced">${boldPart}</strong>${restPart} `;
-      } else {
-          updatedText += word;
-      }
-      
-      // Only add a space if it's not the last word
-      // and ensure spaces are maintained as in original text
-      if (index < words.length - 1) {
-          const nextSpace = fullText.indexOf(' ', updatedText.length - fullText.length);
-          if (nextSpace >= 0) {
-              updatedText += ' ';
+      if (word.trim() !== '') {
+          if (actualWordCount % boldXWords === 0) {
+              const boldLength = Math.ceil(word.length * (wordPercentage / 100));
+              const boldPart = word.substring(0, boldLength);
+              const restPart = word.substring(boldLength);
+              updatedParts.push(`<strong class="bionic-enhanced" style="font-weight:${boldWeight};">${boldPart}</strong>${restPart}`);
+          } else {
+              updatedParts.push(word);
           }
+          actualWordCount++;
       }
 
-      // Increment the actual word count if the word is not an empty string
-      if (word.trim() !== '') actualWordCount++;
+      // Add space if it's not the last word
+      if (index < words.length - 1) {
+          updatedParts.push(' ');
+      }
   });
 
-  // Replace the original text node with new content
-  const newContent = document.createRange().createContextualFragment(updatedText.trim());
+  const updatedText = updatedParts.join('');
+  const newContent = document.createRange().createContextualFragment(updatedText);
   if (textNode.parentNode) {
       textNode.parentNode.replaceChild(newContent, textNode);
   }
 }
 
-function enableBionicReading(wordPercentage, boldXWords) {
+function enableBionicReading(wordPercentage, boldXWords, boldWeight) {
   console.log("started to enable bionic");
   // Get all non-empty text nodes in the document
   let elements = collectNonEmptyTextNodes(document.body);
@@ -74,7 +66,7 @@ function enableBionicReading(wordPercentage, boldXWords) {
   // Apply the bold transformation to each text node
   elements.forEach((el) => {
     console.log("Bolding an element");
-    boldEveryXWord(el, wordPercentage, boldXWords);
+    boldEveryXWord(el, wordPercentage, boldXWords, boldWeight);
   });
 }
 
@@ -93,23 +85,30 @@ function removeBionicEnhancements() {
   document.body.normalize();
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.command == "toggleBionic") {
-    if (!isEnabled) {
-      isEnabled = true;
-      console.log(
-        "Received with elements " +
-          request.argument.percentOfWord +
-          " and " +
-          request.argument.everyXWord
-      );
-      enableBionicReading(
-        request.argument.percentOfWord,
-        request.argument.everyXWord
-      );
-    } else {
+let isEnabled = false;
+
+// Listen for messages from the popup
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  // Check the command and action to toggle Bionic Reading
+  if (request.command === "toggleBionic") {
+      if (request.action === "enable") {
+        isEnabled = true;
+          // Enable Bionic Reading with the specified settings
+          enableBionicReading(request.argument.percentOfWord, request.argument.everyXWord, request.argument.boldWeight);
+      } else if (request.action === "disable") {
+        isEnabled = false;
+          // Disable Bionic Reading
+          removeBionicEnhancements();
+      }
+  }
+});
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.command === "updateSettings" && isEnabled) {
+      // First, remove any existing Bionic enhancements
       removeBionicEnhancements();
-      isEnabled = false;
-    }
+
+      // Then, apply the new settings
+      enableBionicReading(request.settings.percentOfWord, request.settings.everyXWord, request.settings.boldWeight);
   }
 });

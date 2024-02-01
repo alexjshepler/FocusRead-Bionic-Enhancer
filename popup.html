@@ -1,24 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>FocusRead</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bionic Reader Settings</title>
+    <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <div>
-      <input type="range" id="percentage-slider" min="1" max="100" value="50" />
-      <input type="number" id="percentage-input" min="1" max="100" value="50" />
-    </div>
-    <div>
-      <label for="number-input"
-        >Bold every
-        <input type="number" id="every-x-word" min="1" value="1" />
-        word(s)</label
-      >
-    </div>
-    <div>
-      <button type="button" id="submitBtn">Submit</button>
-    </div>
+    <div class="container">
+      <h2>Bionic Reader Settings</h2>
+      <textarea id="preview-input" rows="4">Enter text here to see a live preview of the Bionic Reading effect.</textarea>
+      <div id="preview-output"></div>
+      
+      <label for="percentage-slider">Bold Percentage:</label>
+      <input type="range" id="percentage-slider" min="0" max="100" value="50" />
+      <span id="percentage-value">50%</span>
 
+      <label for="word-count">Bold Every X Words:</label>
+      <input type="number" id="word-count" min="1" value="3" />
+
+      <label for="bold-weight-slider">Bold Weight:</label>
+      <input
+        type="range"
+        id="bold-weight-slider"
+        min="100"
+        max="900"
+        step="100"
+        value="700"
+      />
+      <span id="bold-weight-value">700</span>
+
+      <button id="toggle-bionic">Enable Bionic Reading</button>
+    </div>
     <script src="popup.js"></script>
   </body>
 </html>

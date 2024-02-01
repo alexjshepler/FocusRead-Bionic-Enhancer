@@ -1,44 +1,75 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var slider = document.getElementById("percentage-slider");
-  var input = document.getElementById("percentage-input");
+  const slider = document.getElementById("percentage-slider");
+  const sliderValue = document.getElementById("percentage-value");
+  const wordCount = document.getElementById("word-count");
+  const toggleButton = document.getElementById("toggle-bionic");
+  const boldWeightSlider = document.getElementById("bold-weight-slider");
+  const boldWeightValue = document.getElementById("bold-weight-value");
 
-  // Update number input when the slider changes
-  slider.oninput = function () {
-    input.value = this.value;
-    // Additional logic can be added here, if needed
+  boldWeightSlider.oninput = function () {
+    boldWeightValue.textContent = this.value;
   };
 
-  // Update slider when the number input changes
-  input.oninput = function () {
-    var value = parseInt(this.value);
-    if (value < 1) {
-      value = 1;
-    } else if (value > 100) {
-      value = 100;
-    }
-    slider.value = value;
-    this.value = value;
-    // Additional logic can be added here, if needed
+  slider.oninput = function () {
+    sliderValue.textContent = this.value + "%";
+  };
+
+  toggleButton.onclick = function () {
+    const isEnabled = toggleButton.textContent.includes("Enable");
+
+    chrome.action.onClicked.addListener((tab) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["contentScript.js"],
+      });
+    });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (isEnabled) {
+        console.log("Enabling Bionic Reading Mode");
+        // Send message to content script to enable Bionic Reading
+
+        chrome.tabs.sendMessage(tabs[0].id, {
+          command: "toggleBionic",
+          action: "enable",
+          argument: {
+            percentOfWord: slider.value,
+            everyXWord: wordCount.value,
+                boldWeight: boldWeightSlider.value
+          },
+        });
+        toggleButton.textContent = "Disable Bionic Reading";
+      } else {
+        console.log("Disabling Bionic Reading Mode");
+        // Send message to content script to disable Bionic Reading
+        chrome.tabs.sendMessage(tabs[0].id, {
+          command: "toggleBionic",
+          action: "disable",
+        });
+        toggleButton.textContent = "Enable Bionic Reading";
+      }
+    });
   };
 });
 
-document.getElementById('submitBtn').addEventListener('click', function() {
-  console.log("Start of send")
-  // You can modify this to pass the specific arguments you need
-  let argumentToSend = {
-    percentOfWord: document.getElementById("percentage-input").value,
-    everyXWord: document.getElementById("every-x-word").value
-  };
-
-  chrome.action.onClicked.addListener((tab) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ['contentScript.js']
-    });
-  });
+function sendSettingsToContentScript() {
+  const wordPercentage = document.getElementById('percentage-slider').value;
+  const boldXWords = document.getElementById('word-count').value;
+  const boldWeight = document.getElementById('bold-weight-slider').value;
 
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    console.log("sent");
-      chrome.tabs.sendMessage(tabs[0].id, {command: "toggleBionic", argument: argumentToSend});
+      chrome.tabs.sendMessage(tabs[0].id, {
+          command: "updateSettings",
+          settings: {
+              percentOfWord: wordPercentage,
+              everyXWord: boldXWords,
+              boldWeight: boldWeight
+          }
+      });
   });
-});
+}
+
+
+document.getElementById('percentage-slider').addEventListener('change', sendSettingsToContentScript);
+document.getElementById('word-count').addEventListener('change', sendSettingsToContentScript);
+document.getElementById('bold-weight-slider').addEventListener('change', sendSettingsToContentScript);

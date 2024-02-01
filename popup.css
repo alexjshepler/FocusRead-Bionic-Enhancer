@@ -1,0 +1,54 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    padding: 20px;
+    width: 300px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 20px;
+}
+
+input[type=range] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+input[type=number] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    box-sizing: border-box; /* Ensures padding doesn't increase the input's size */
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+#preview-output {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    white-space: pre-wrap; /* Ensures whitespace and line breaks are respected */
+}
