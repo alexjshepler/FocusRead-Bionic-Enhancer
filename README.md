@@ -5,7 +5,10 @@ FocusRead: Bionic Enhancer is a Chrome extension designed to enhance your online
 
 ## Installation
 To install FocusRead:
-TBD
+1. Download a zip file of this repo
+2. Unzip the file
+3. Open google chrome (or any chromium based browser) and go to the installed extensions page
+4. Enable developer mode and click load upacked extension and select the unzipped file
 
 ## Usage
 After installing FocusRead:
