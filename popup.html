@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>FocusRead</title>
-  <script src="popup.js"></script>
-</head>
-<body>
-  <div>
-    <input type="range" id="percentage-slider" min="1" max="100" value="50">
-    <input type="number" id="percentage-input" min="1" max="100" value="50">
-  </div>
-  <div>
-    <label for="number-input">Bold every <input type="number" id="number-input" min="1" value="1"> word(s)</label>
-  </div>
-  <div>
-    <button type="button" id="submitBtn">Submit</button>
-  </div>
-</body>
+  <head>
+    <title>FocusRead</title>
+  </head>
+  <body>
+    <div>
+      <input type="range" id="percentage-slider" min="1" max="100" value="50" />
+      <input type="number" id="percentage-input" min="1" max="100" value="50" />
+    </div>
+    <div>
+      <label for="number-input"
+        >Bold every
+        <input type="number" id="every-x-word" min="1" value="1" />
+        word(s)</label
+      >
+    </div>
+    <div>
+      <button type="button" id="submitBtn">Submit</button>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
 </html>
